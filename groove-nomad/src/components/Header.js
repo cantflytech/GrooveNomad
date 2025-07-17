@@ -27,6 +27,7 @@ export default function Header({ currentUser, logout }) {
   const menuItems = [
     { name: 'Accueil', path: '/' },
     { name: 'Festivals', path: '/festivals' },
+    { name: 'Communauté', path: '/community' },
     { name: 'Mes Voyages', path: '/my-trips' },
   ];
 
