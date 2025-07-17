@@ -5,6 +5,7 @@ import FestivalCard from "../components/FestivalCard";
 import { Search } from "lucide-react";
 import { fetchFestivals } from "../services/airtableService";
 import { useSearch } from "../contexts/SearchContext";
+import homeImg from '../img/home.jpg'; // Assuming you have a home image
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -81,8 +82,9 @@ export default function HomePage() {
       <div className="relative h-96 bg-gradient-to-r from-orange-400 to-pink-400">
         <div
           className="absolute inset-0 bg-cover bg-center bg-blend-overlay"
-          style={{ backgroundImage: "url(/placeholder.svg?height=400&width=1200)" }}
+             style={{ backgroundImage: `url(${homeImg})` }}
         />
+        
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
           <h1 className="text-5xl font-bold mb-4">
             GROOVE

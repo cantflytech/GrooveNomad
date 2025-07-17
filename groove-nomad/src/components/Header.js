@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { useSearch } from "../contexts/SearchContext"
 import { fetchFestivals } from "../services/airtableService"
+import logo from '../img/logo.svg'; // Assuming you have a logo image
 
 export default function Header({ currentPage }) {
   const location = useLocation()
@@ -99,7 +100,7 @@ export default function Header({ currentPage }) {
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <img className="h-8 w-auto" src="/placeholder.svg?height=32&width=120" alt="Groove Nomad" />
+              <img className="h-8 w-auto" src={logo} alt="Groove Nomad" />
             </div>
           </div>
 

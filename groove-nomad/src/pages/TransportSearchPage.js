@@ -1,43 +1,83 @@
 import Header from "../components/Header"
 import { Train, Plane, Car, ArrowLeft } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { fetchTransportOptions, fetchTransportByFestival } from "../services/airtableService"
 
 export default function TransportSearchPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [transports, setTransports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFestival, setSelectedFestival] = useState(null);
 
-  const handleNextStep = () => {
-    navigate('/trip/accommodation');
+  useEffect(() => {
+    const loadTransports = async () => {
+      try {
+        setLoading(true);
+        const festivalId = location.state?.selectedFestival?.id;
+        
+        if (festivalId) {
+          setSelectedFestival(location.state.selectedFestival);
+          const festivalTransports = await fetchTransportByFestival(festivalId);
+          setTransports(festivalTransports);
+        } else {
+          const allTransports = await fetchTransportOptions();
+          setTransports(allTransports.slice(0, 6)); // Limite à 6 résultats
+        }
+      } catch (error) {
+        console.error('Error loading transports:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTransports();
+  }, [location.state]);
+
+  const handleNextStep = (selectedTransport) => {
+    navigate('/trip/accommodation', {
+      state: {
+        selectedFestival,
+        selectedTransport,
+        tripData: {
+          ...location.state?.tripData,
+          transport: selectedTransport
+        }
+      }
+    });
   };
 
   const handlePreviousStep = () => {
     navigate('/trip/step1');
   };
-  const transportOptions = [
-    {
-      type: "Train",
-      icon: Train,
-      image: "/placeholder.svg?height=200&width=300",
-      price: "$50",
-      comfort: "High",
-      services: "Wi-Fi, Meals",
-    },
-    {
-      type: "Plane",
-      icon: Plane,
-      image: "/placeholder.svg?height=200&width=300",
-      price: "$150",
-      comfort: "Medium",
-      services: "In-flight entertainment",
-    },
-    {
-      type: "Car",
-      icon: Car,
-      image: "/placeholder.svg?height=200&width=300",
-      price: "$80",
-      comfort: "Low",
-      services: "Freedom",
-    },
-  ]
+
+  const getTransportIcon = (type) => {
+    switch (type?.toLowerCase()) {
+      case 'train':
+        return Train;
+      case 'flight':
+        return Plane;
+      case 'car rental':
+        return Car;
+      default:
+        return Train;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Chargement des options de transport...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,11 +87,18 @@ export default function TransportSearchPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <h1 className="text-3xl font-bold text-gray-900 mb-8">Transport Search</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-8">Options de Transport</h1>
+            
+            {selectedFestival && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h2 className="text-lg font-semibold text-blue-900">Festival sélectionné</h2>
+                <p className="text-blue-700">{selectedFestival.name} - {selectedFestival.location}</p>
+              </div>
+            )}
 
             {/* Progress */}
             <div className="mb-8">
-              <p className="text-sm text-gray-600 mb-2">Step 2 of 4: Transport</p>
+              <p className="text-sm text-gray-600 mb-2">Étape 2 sur 4: Transport</p>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div className="bg-gray-900 h-2 rounded-full" style={{ width: "50%" }}></div>
               </div>
@@ -59,54 +106,80 @@ export default function TransportSearchPage() {
 
             {/* Transport Options */}
             <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Choose Your Transport</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {transportOptions.map((option) => (
-                  <div
-                    key={option.type}
-                    className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                  >
-                    <img
-                      src={option.image || "/placeholder.svg"}
-                      alt={option.type}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-4">
-                      <h3 className="font-bold text-gray-900">{option.type}</h3>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Choisissez votre transport</h2>
+              {transports.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Aucune option de transport disponible pour ce festival.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {transports.map((transport) => {
+                    const IconComponent = getTransportIcon(transport.type);
+                    return (
+                      <div
+                        key={transport.id}
+                        className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleNextStep(transport)}
+                      >
+                        <img
+                          src={transport.image || "/placeholder.svg"}
+                          alt={transport.type}
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="p-4">
+                          <div className="flex items-center mb-2">
+                            <IconComponent className="h-6 w-6 text-gray-600 mr-2" />
+                            <h3 className="font-bold text-gray-900">{transport.type}</h3>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {new Date(transport.schedule).toLocaleString('fr-FR')}
+                          </p>
+                          <p className="text-lg font-bold text-green-600">${transport.price}</p>
+                          {transport.duration && (
+                            <p className="text-sm text-gray-500">Durée: {transport.duration}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Compare Options */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Compare Options</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Comparer les options</h2>
               <div className="bg-white rounded-lg overflow-hidden shadow-sm">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Option
+                        Type
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
+                        Prix
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Comfort
+                        Horaire
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Services
+                        Disponibilité
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {transportOptions.map((option) => (
-                      <tr key={option.type}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{option.type}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{option.price}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{option.comfort}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{option.services}</td>
+                    {transports.map((transport) => (
+                      <tr key={transport.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleNextStep(transport)}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{transport.type}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${transport.price}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(transport.schedule).toLocaleString('fr-FR')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <span className={`px-2 py-1 rounded-full text-xs ${transport.availability ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {transport.availability ? 'Disponible' : 'Complet'}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
