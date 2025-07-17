@@ -1,11 +1,12 @@
 import Header from "../components/Header"
 import { Calendar, Plus } from "lucide-react"
 import React, { useState, useEffect } from 'react';
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { fetchFestivalById } from "../services/airtableService";
 
 export default function FestivalDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [festival, setFestival] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,6 +26,10 @@ export default function FestivalDetailPage() {
       loadFestival();
     }
   }, [id]);
+
+  const handleCreateTrip = () => {
+    navigate('/trip/step1');
+  };
 
   if (loading) {
     return (
@@ -219,7 +224,10 @@ export default function FestivalDetailPage() {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center space-x-2 mb-6">
+              <button 
+                onClick={handleCreateTrip}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center space-x-2 mb-6"
+              >
                 <Plus className="h-5 w-5" />
                 <span>Create My Trip</span>
               </button>
