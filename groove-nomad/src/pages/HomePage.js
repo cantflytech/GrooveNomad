@@ -1,48 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from "../components/Header";
 import FestivalCard from "../components/FestivalCard";
 import { Search } from "lucide-react";
+import { fetchFestivals } from "../services/airtableService";
+import { useSearch } from "../contexts/SearchContext";
 
 export default function HomePage() {
-  const recommendedFestivals = [
-    {
-      id: 1,
-      name: "Electric Beats Fest",
-      location: "Ibiza, Spain",
-      image: "/placeholder.svg?height=300&width=400",
-      trending: true,
-    },
-    {
-      id: 2,
-      name: "Harmony Flow",
-      location: "Austin, TX",
-      image: "/placeholder.svg?height=300&width=400",
-    },
-    {
-      id: 3,
-      name: "Rhythm Riot",
-      location: "Berlin, Germany",
-      image: "/placeholder.svg?height=300&width=400",
-    },
-  ];
+  const navigate = useNavigate();
+  const { updateGlobalSearch } = useSearch();
+  const [festivals, setFestivals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchFilters, setSearchFilters] = useState({
+    destination: '',
+    time: '',
+    travelers: ''
+  });
 
-  const featuredFestivals = [
-    {
-      id: 1,
-      name: "Harmony Haven",
-      description:
-        "A three-day music festival in the heart of the city, featuring top artists and immersive experiences.",
-      date: "Jul 12 - 14, 2024",
-      image: "/placeholder.svg?height=300&width=500",
-    },
-    {
-      id: 2,
-      name: "Rhythm Retreat",
-      description: "Escape to a serene lakeside retreat with acoustic performances and wellness activities.",
-      date: "Aug 5 - 7, 2024",
-      image: "/placeholder.svg?height=300&width=500",
-    },
-  ];
+  useEffect(() => {
+    const loadFestivals = async () => {
+      try {
+        const festivalsData = await fetchFestivals();
+        setFestivals(festivalsData);
+      } catch (error) {
+        console.error('Error loading festivals:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFestivals();
+  }, []);
+
+  const handleFestivalClick = (festival) => {
+    navigate(`/festival/${festival.id}`);
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchFilters.destination) {
+      updateGlobalSearch(searchFilters.destination);
+      navigate('/festivals');
+    }
+  };
+
+  const handleFilterChange = (field, value) => {
+    setSearchFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Get recommended festivals (first 3 for carousel)
+  const recommendedFestivals = festivals.slice(0, 3);
+  
+  // Get featured festivals (trending or first 2)
+  const featuredFestivals = festivals.filter(f => f.trending).slice(0, 2);
+  if (featuredFestivals.length < 2) {
+    const nonTrending = festivals.filter(f => !f.trending).slice(0, 2 - featuredFestivals.length);
+    featuredFestivals.push(...nonTrending);
+  }
+
+  // Get unique locations for destination dropdown
+  const destinations = [...new Set(festivals.map(f => f.location))];
+
+  // Get unique time ranges
+  const timeRanges = ['This Month', 'Next 3 Months', 'This Year', 'Next Year'];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -108,43 +131,77 @@ export default function HomePage() {
         </div>
 
         {/* Search Form */}
-        <div className="bg-teal-500 rounded-lg p-6 mb-12">
+        <form onSubmit={handleSearch} className="bg-teal-500 rounded-lg p-6 mb-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label className="block text-white text-sm font-medium mb-2">. Drop-Off Location</label>
-              <select className="w-full p-2 rounded border-0 shadow-none text-white bg-transparent">
-                <option>Search for a location</option>
+              <label className="block text-white text-sm font-medium mb-2">Destination</label>
+              <select 
+                className="w-full p-2 rounded border-0 shadow-none text-gray-900 bg-white"
+                value={searchFilters.destination}
+                onChange={(e) => handleFilterChange('destination', e.target.value)}
+              >
+                <option value="">Search for a destination</option>
+                {destinations.map((destination, index) => (
+                  <option key={index} value={destination}>{destination}</option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="block text-white text-sm font-medium mb-2">Departure</label>
-              <select className="w-full p-2 rounded border-0 text-white bg-transparent">
-                <option>When?</option>
+              <label className="block text-white text-sm font-medium mb-2">Time Period</label>
+              <select 
+                className="w-full p-2 rounded border-0 text-gray-900 bg-white"
+                value={searchFilters.time}
+                onChange={(e) => handleFilterChange('time', e.target.value)}
+              >
+                <option value="">When?</option>
+                {timeRanges.map((range, index) => (
+                  <option key={index} value={range}>{range}</option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="block text-white text-sm font-medium mb-2">Time</label>
-              <select className="w-full p-2 rounded border-0 text-white bg-transparent">
-                <option>Select your time</option>
+              <label className="block text-white text-sm font-medium mb-2">Duration</label>
+              <select 
+                className="w-full p-2 rounded border-0 text-gray-900 bg-white"
+                value={searchFilters.duration}
+                onChange={(e) => handleFilterChange('duration', e.target.value)}
+              >
+                <option value="">Any duration</option>
+                <option value="1">1 day</option>
+                <option value="2-3">2-3 days</option>
+                <option value="4-7">4-7 days</option>
+                <option value="7+">More than 7 days</option>
               </select>
             </div>
             <div>
               <label className="block text-white text-sm font-medium mb-2">Travelers</label>
-              <select className="w-full p-2 rounded border-0 text-white bg-transparent">
-                <option>How many people?</option>
+              <select 
+                className="w-full p-2 rounded border-0 text-gray-900 bg-white"
+                value={searchFilters.travelers}
+                onChange={(e) => handleFilterChange('travelers', e.target.value)}
+              >
+                <option value="">How many people?</option>
+                <option value="1">1 person</option>
+                <option value="2">2 people</option>
+                <option value="3-5">3-5 people</option>
+                <option value="6+">6+ people</option>
               </select>
             </div>
           </div>
-          <button className="mt-4 bg-white text-teal-500 px-6 py-2 font-medium hover:bg-gray-100 rounded-md">
-            Search
+          <button 
+            type="submit"
+            className="mt-4 bg-white text-teal-500 px-6 py-2 font-medium hover:bg-gray-100 rounded-md flex items-center gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Search Festivals
           </button>
-        </div>
+        </form>
 
         {/* Featured Festivals */}
         <h2 className="text-2xl font-bold text-gray-900 mb-8">Featured Festivals</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {featuredFestivals.map((festival) => (
-            <FestivalCard key={festival.id} festival={festival} />
+            <FestivalCard key={festival.id} festival={festival} onFestivalClick={handleFestivalClick} />
           ))}
         </div>
 
