@@ -1,12 +1,14 @@
 import Header from "../components/Header"
 import { Search, MapPin, ChevronDown } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "../contexts/AuthContext";
 
 export default function MyTripsPage() {
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
 
   const handleNextStep = () => {
-    navigate('/trip/transport');
+    navigate('/trip/step2');
   };
   const myFestivals = [
     {

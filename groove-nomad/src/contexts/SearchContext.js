@@ -11,25 +11,28 @@ export const useSearch = () => {
 };
 
 export const SearchProvider = ({ children }) => {
-  const [globalSearchTerm, setGlobalSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
   const updateGlobalSearch = (term) => {
-    setGlobalSearchTerm(term);
+    setSearchQuery(term);
   };
 
   const clearSearch = () => {
-    setGlobalSearchTerm('');
+    setSearchQuery('');
     setSearchResults([]);
   };
 
   return (
     <SearchContext.Provider value={{
-      globalSearchTerm,
+      searchQuery,
+      setSearchQuery,
       searchResults,
       setSearchResults,
       updateGlobalSearch,
-      clearSearch
+      clearSearch,
+      // Garder l'ancien nom pour compatibilité
+      globalSearchTerm: searchQuery
     }}>
       {children}
     </SearchContext.Provider>

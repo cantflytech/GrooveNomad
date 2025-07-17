@@ -155,3 +155,97 @@ export async function fetchTransportByFestival(festivalId) {
     return [];
   }
 }
+
+// Fonction pour récupérer tous les utilisateurs
+export async function fetchUsers() {
+  try {
+    const response = await fetch(`${AIRTABLE_API_URL}/${BASE_ID}/Users`, {
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    
+    return data.records.map(record => ({
+      id: record.id,
+      userId: record.fields['User ID'] || '',
+      firstName: record.fields['First Name'] || '',
+      lastName: record.fields['Last Name'] || '',
+      email: record.fields['Email'] || '',
+      profilePhoto: record.fields['Profile Photo'] && record.fields['Profile Photo'][0] 
+        ? record.fields['Profile Photo'][0].url 
+        : null,
+      phoneNumber: record.fields['Phone Number'] || '',
+      region: record.fields['Region'] || '',
+      country: record.fields['Country of Residence'] || '',
+      fullName: `${record.fields['First Name'] || ''} ${record.fields['Last Name'] || ''}`.trim()
+    }))
+  } catch (error) {
+    console.error('Error fetching users:', error)
+    return []
+  }
+}
+
+// Fonction pour récupérer un utilisateur par email
+export async function fetchUserByEmail(email) {
+  try {
+    const allUsers = await fetchUsers()
+    return allUsers.find(user => user.email.toLowerCase() === email.toLowerCase()) || null
+  } catch (error) {
+    console.error('Error fetching user by email:', error)
+    return null
+  }
+}
+
+// Fonction pour créer un nouvel utilisateur
+export async function createUser(userData) {
+  try {
+    const response = await fetch(`${AIRTABLE_API_URL}/${BASE_ID}/Users`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fields: {
+          'User ID': userData.userId || '',
+          'First Name': userData.firstName || '',
+          'Last Name': userData.lastName || '',
+          'Email': userData.email || '',
+          'Phone Number': userData.phoneNumber || '',
+          'Region': userData.region || '',
+          'Country of Residence': userData.country || 'France'
+        }
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return {
+      id: data.id,
+      userId: data.fields['User ID'] || '',
+      firstName: data.fields['First Name'] || '',
+      lastName: data.fields['Last Name'] || '',
+      email: data.fields['Email'] || '',
+      profilePhoto: data.fields['Profile Photo'] && data.fields['Profile Photo'][0] 
+        ? data.fields['Profile Photo'][0].url 
+        : null,
+      phoneNumber: data.fields['Phone Number'] || '',
+      region: data.fields['Region'] || '',
+      country: data.fields['Country of Residence'] || '',
+      fullName: `${data.fields['First Name'] || ''} ${data.fields['Last Name'] || ''}`.trim()
+    }
+  } catch (error) {
+    console.error('Error creating user:', error)
+    throw error
+  }
+}

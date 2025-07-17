@@ -3,10 +3,12 @@ import { Calendar, Plus } from "lucide-react"
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from "react-router-dom"
 import { fetchFestivalById } from "../services/airtableService";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function FestivalDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
   const [festival, setFestival] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +36,7 @@ export default function FestivalDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header currentUser={currentUser} logout={logout} />
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
           <p className="mt-2 text-gray-600">Loading festival details...</p>
@@ -46,7 +48,7 @@ export default function FestivalDetailPage() {
   if (!festival) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header currentUser={currentUser} logout={logout} />
         <div className="text-center py-12">
           <p className="text-gray-600">Festival not found</p>
         </div>
@@ -105,7 +107,7 @@ export default function FestivalDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header currentUser={currentUser} logout={logout} />
 
       {/* Hero Image */}
       <div className="h-64 bg-gradient-to-r from-pink-400 to-orange-400">

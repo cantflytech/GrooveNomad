@@ -5,11 +5,13 @@ import FestivalCard from "../components/FestivalCard";
 import { Search } from "lucide-react";
 import { fetchFestivals } from "../services/airtableService";
 import { useSearch } from "../contexts/SearchContext";
+import { useAuth } from "../contexts/AuthContext";
 import homeImg from '../img/home.jpg'; // Assuming you have a home image
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { updateGlobalSearch } = useSearch();
+  const { currentUser, logout } = useAuth();
   const [festivals, setFestivals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchFilters, setSearchFilters] = useState({
@@ -70,7 +72,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header currentPage="Home" />
+      <Header currentUser={currentUser} logout={logout} />
 
       {/* Notification Banner */}
       <div className="bg-black text-white px-4 py-2 text-center text-sm">

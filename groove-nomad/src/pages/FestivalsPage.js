@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom"
 import React, { useState, useEffect } from 'react';
 import { fetchFestivals } from "../services/airtableService";
 import { useSearch } from "../contexts/SearchContext";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function FestivalsPage() {
   const navigate = useNavigate();
   const { globalSearchTerm } = useSearch();
+  const { currentUser, logout } = useAuth();
   const [festivals, setFestivals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -73,7 +75,7 @@ export default function FestivalsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header currentPage="Festivals" />
+      <Header currentUser={currentUser} logout={logout} />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
