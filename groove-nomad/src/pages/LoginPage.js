@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import PageWrapper from '../components/PageWrapper';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,7 +30,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100">
+    <PageWrapper>
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100">
       {/* Header avec retour */}
       <div className="pt-4 px-4">
         <Link to="/" className="inline-flex items-center text-purple-600 hover:text-purple-800">
@@ -129,5 +131,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+    </PageWrapper>
   );
 }

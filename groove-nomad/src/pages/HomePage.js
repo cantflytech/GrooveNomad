@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from "../components/Header";
 import FestivalCard from "../components/FestivalCard";
+import PageWrapper from "../components/PageWrapper";
 import { Search } from "lucide-react";
 import { fetchFestivals } from "../services/airtableService";
 import { useSearch } from "../contexts/SearchContext";
@@ -72,14 +73,15 @@ export default function HomePage() {
   const timeRanges = ['This Month', 'Next 3 Months', 'This Year', 'Next Year'];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header currentUser={currentUser} logout={logout} />
+    <PageWrapper>
+      <div className="min-h-screen bg-gray-50">
+        <Header currentUser={currentUser} logout={logout} />
 
-      {/* Notification Banner */}
-      <div className="bg-black text-white px-4 py-2 text-center text-sm">
-        <span>• 75% off on your tech bundles until 07/15 – hurry up!</span>
-        <button className="ml-4 text-white hover:text-gray-300">×</button>
-      </div>
+        {/* Notification Banner */}
+        <div className="bg-black text-white px-4 py-2 text-center text-sm">
+          <span>• 75% off on your tech bundles until 07/15 – hurry up!</span>
+          <button className="ml-4 text-white hover:text-gray-300">×</button>
+        </div>
 
       {/* Hero Section */}
       <div className="relative h-96 bg-gradient-to-r from-orange-400 to-pink-400">
@@ -250,5 +252,6 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+    </PageWrapper>
   );
 }

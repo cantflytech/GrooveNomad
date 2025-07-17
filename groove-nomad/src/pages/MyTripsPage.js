@@ -1,4 +1,5 @@
 import Header from "../components/Header"
+import PageWrapper from "../components/PageWrapper"
 import { Search, MapPin, ChevronDown } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext";
@@ -71,8 +72,9 @@ export default function MyTripsPage() {
   const filters = ["Genre", "Dates", "Popularity", "Location"]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header currentPage="My trips" />
+    <PageWrapper>
+      <div className="min-h-screen bg-gray-50">
+        <Header currentUser={currentUser} logout={logout} />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -190,5 +192,6 @@ export default function MyTripsPage() {
         </div>
       </div>
     </div>
+    </PageWrapper>
   )
 }

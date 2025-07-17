@@ -1,5 +1,6 @@
 import Header from "../components/Header"
 import FestivalCard from "../components/FestivalCard"
+import PageWrapper from "../components/PageWrapper"
 import { Search, Music } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import React, { useState, useEffect } from 'react';
@@ -74,8 +75,9 @@ export default function FestivalsPage() {
   const categories = getCategories();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header currentUser={currentUser} logout={logout} />
+    <PageWrapper>
+      <div className="min-h-screen bg-gray-50">
+        <Header currentUser={currentUser} logout={logout} />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
@@ -140,5 +142,6 @@ export default function FestivalsPage() {
         </div>
       </div>
     </div>
+    </PageWrapper>
   )
 }

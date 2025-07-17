@@ -1,12 +1,15 @@
 import Header from "../components/Header"
+import PageWrapper from "../components/PageWrapper"
 import { Train, Plane, Car, ArrowLeft } from "lucide-react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { fetchTransportOptions, fetchTransportByFestival } from "../services/airtableService"
+import { useAuth } from "../contexts/AuthContext";
 
 export default function TransportSearchPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUser, logout } = useAuth();
   const [transports, setTransports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFestival, setSelectedFestival] = useState(null);
