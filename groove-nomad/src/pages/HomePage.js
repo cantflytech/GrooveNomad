@@ -7,6 +7,7 @@ import { fetchFestivals } from "../services/airtableService";
 import { useSearch } from "../contexts/SearchContext";
 import { useAuth } from "../contexts/AuthContext";
 import homeImg from '../img/home.jpg'; // Assuming you have a home image
+import Quizz from '../img/Quizz.png'; // Assuming you have a quiz image
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -209,25 +210,31 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Quiz Section */}
-        <div className="bg-teal-500 rounded-lg p-8 text-white mb-12">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h3 className="text-xl font-bold mb-2">Find your perfect festival</h3>
-              <h4 className="text-lg font-medium mb-2">Quiz: Your Ideal Festival</h4>
-              <p className="mb-4">
-                Take our quick quiz to get personalized festival recommendations based on your music taste and travel
-                preferences.
-              </p>
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium">
-                Start Quiz
-              </button>
-            </div>
-            <div className="ml-8">
-              <img src="/placeholder.svg?height=120&width=200" alt="Music Pulse" className="rounded-lg" />
-            </div>
-          </div>
-        </div>
+ {/* Quiz Section */}
+<div className="bg-teal-400 rounded-xl p-1 mb-12">
+  <div className="bg-teal-600 rounded-lg p-6 md:p-8 text-white flex flex-col md:flex-row items-center md:justify-between">
+    <div className="flex-1 md:pr-8 mb-6 md:mb-0 text-center md:text-left">
+      <h3 className="text-lg md:text-xl font-bold mb-1">Find your perfect festival</h3>
+      <h4 className="text-base md:text-lg font-medium mb-2">Quiz: Your Ideal Festival</h4>
+      <p className="mb-4 md:mb-6 text-sm md:text-base">
+        Take our quick quiz to get personalized festival recommendations based on your music taste and travel
+        preferences.
+      </p>
+      <button className="inline-block bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 
+                         text-white px-5 py-2 rounded-lg font-medium transition">
+        Start Quiz
+      </button>
+    </div>
+    <div className="w-32 md:w-48 lg:w-56 aspect-[3/4] overflow-hidden rounded-lg shadow-lg">
+      <img
+        src={Quizz}
+        alt="Quiz preview"
+        className="object-cover w-full h-full"
+      />
+    </div>
+  </div>
+</div>
+
 
         {/* Community Feed */}
         <div className="text-center">
